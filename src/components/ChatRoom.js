@@ -185,7 +185,7 @@ const ChatRoom = () => {
                 </ul>
                 <form onSubmit={sendPrivateValue}>
                     <div className="send-message">
-                        <input type="text" autoFocus className="input-message" placeholder="enter the message" value={userData.message} onChange={handleMessage} /> 
+                        <input type="text" autoFocus className="input-message" placeholder="Type message..." value={userData.message} onChange={handleMessage} /> 
                         <button type="button" className="send-button" onClick={sendPrivateValue}>send</button>
                     </div>
                 </form>
