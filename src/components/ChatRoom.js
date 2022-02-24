@@ -228,7 +228,7 @@ const ChatRoom = () => {
             </div>
             <div>
                 <div className="developedBy">
-                    <i> &copy; Uttam Kumar, Thanks for visiting !!</i>
+                   <i> &copy; (2022) &lt; Developer :  <b> Uttam Kumar</b> / &gt; </i>
                 </div>
             </div>
         </div>}
