@@ -206,9 +206,11 @@ const ChatRoom = () => {
                             <br></br>
                             <div style={{fontSize:"16px"}}>(an anonymous chatting application)</div>
                     </div>
+                    
                     <input
                         autoFocus
                         required
+                        className="register-input"
                         id="user-name"
                         placeholder="Enter nickname"
                         name="userName"
@@ -225,7 +227,7 @@ const ChatRoom = () => {
             
             <div className="developedBy">
                 <div>
-                    <i>Developed by Uttam Kumar, Thanks for visiting !!</i>
+                    <i> &copy; Uttam Kumar, Thanks for visiting !!</i>
                 </div>
             </div>
         </div>}

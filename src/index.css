@@ -14,9 +14,10 @@ code {
 }
 
 input {
-  padding: 10px;
+  padding: 5px;
   font-size: 1.2em;
 }
+
 button{
   border: none;
   padding: 10px;
@@ -25,7 +26,6 @@ button{
   font-size: 1.2em;
   font-weight: bold;
 }
-
 
 .container{
   position: relative;
@@ -39,25 +39,27 @@ button{
   font-size: 20px;
   color:white;
 }
+
 .register{
   position: fixed;
-  padding:20px;
-  box-shadow:0 2.8px 2.2px rgba(0, 0, 0, 0.034),0 6.7px 5.3px rgba(0, 0, 0, 0.048),0 12.5px 10px rgba(0, 0, 0, 0.06),0 22.3px 17.9px rgba(0, 0, 0, 0.072),0 41.8px 33.4px rgba(0, 0, 0, 0.086),0 100px 80px rgba(0, 0, 0, 0.12);
+  padding:0px;
+  /* box-shadow:0 2.8px 2.2px rgba(0, 0, 0, 0.034),0 6.7px 5.3px rgba(0, 0, 0, 0.048),0 12.5px 10px rgba(0, 0, 0, 0.06),0 22.3px 17.9px rgba(0, 0, 0, 0.072),0 41.8px 33.4px rgba(0, 0, 0, 0.086),0 100px 80px rgba(0, 0, 0, 0.12); */
   top:30%;
   width:100%;
   display: flex;
   justify-content: center;
-  display: flex;
   flex-direction: row;
 }
+
 .register input{
   color: rgb(37, 3, 3);
-  border-radius: 10px 200px 10px 10px;
+  border-radius: 10px 10px 10px 10px;
 }
+
 .developedBy{
   position: fixed;
   color: white;
-  top:95%;
+  top:90%;
   width:100%;
   display: flex;
   justify-content: center;
@@ -65,9 +67,11 @@ button{
   flex-direction: row;
 }
 
+/* .register-input{
+  border-radius: 50px 0px 0px 50px;
+} */
 .register button{
-  margin-left: 5px;
-  border-radius: 50px;
+  border-radius: 20px 20px 20px 20px;
   cursor: pointer;
 }
 
@@ -145,7 +149,7 @@ ul {
 .send-button{
   width:100px;
   margin-right: 2%;
-  border-radius: 40px 550px;
+  border-radius: 40px 200px;
   float: right;
   cursor: pointer;
 }
