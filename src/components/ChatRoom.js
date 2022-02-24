@@ -19,7 +19,7 @@ const ChatRoom = () => {
     }, [userData]);
 
     const connect =()=>{
-        let socketServerLocal='http://localhost:8080/ws'
+        // let socketServerLocal='http://localhost:8080/ws'
         let socketServerCloud='https://anonchat-server.herokuapp.com/ws'
         let socket = new SockJS(socketServerCloud);
         stompClient = over(socket);
