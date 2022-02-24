@@ -223,10 +223,11 @@ const ChatRoom = () => {
                     </button> 
                 </form>
             </div>
-
-            
-            <div className="developedBy">
-                <div>
+            <div className="front-image">
+                    <img style={{width:"400px",height:"auto",}} src="front-image.png" alt=""></img>
+            </div>
+            <div>
+                <div className="developedBy">
                     <i> &copy; Uttam Kumar, Thanks for visiting !!</i>
                 </div>
             </div>
