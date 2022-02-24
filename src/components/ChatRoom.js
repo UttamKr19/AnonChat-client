@@ -7,6 +7,7 @@ const ChatRoom = () => {
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
     const [tab,setTab] =useState("CHATROOM");
+    const [connectButtonText,setConnectButtonText] =useState("connect");
     const [userData, setUserData] = useState({
         username: '',
         receivername: '',
@@ -21,6 +22,7 @@ const ChatRoom = () => {
     const connect =()=>{
         // let socketServerLocal='http://localhost:8080/ws'
         // let socketServerCloud2='https://anonchat-server.herokuapp.com/ws'
+        setConnectButtonText("connecting")
         let socketServerCloud='https://anonchat-server.herokuapp.com/ws'
         let socket = new SockJS(socketServerCloud);
         stompClient = over(socket);
@@ -137,6 +139,7 @@ const ChatRoom = () => {
 
     return (
     <div className="container">
+        
         {userData.connected?
         <div className="chat-box">
             <div className="member-list">
@@ -163,7 +166,7 @@ const ChatRoom = () => {
                 </ul>
                 <form onSubmit={sendValue}>
                     <div className="send-message">
-                        <input type="text" className="input-message" placeholder="enter the message" value={userData.message} onChange={handleMessage} /> 
+                        <input type="text" className="input-message" autoFocus placeholder="Type message..." value={userData.message} onChange={handleMessage} /> 
                         <button type="submit" className="send-button" onClick={sendValue}>send</button>
                     </div>
                 </form>
@@ -182,32 +185,49 @@ const ChatRoom = () => {
                 </ul>
                 <form onSubmit={sendPrivateValue}>
                     <div className="send-message">
-                        <input type="text" className="input-message" placeholder="enter the message" value={userData.message} onChange={handleMessage} /> 
+                        <input type="text" autoFocus className="input-message" placeholder="enter the message" value={userData.message} onChange={handleMessage} /> 
                         <button type="button" className="send-button" onClick={sendPrivateValue}>send</button>
                     </div>
                 </form>
             </div>}
         </div>
         :
-        <div className="register">
-            <form onSubmit={registerUser}>
-                <div className="welcome-box">
-                        Welcome to <span className="logo"><b>AnonChat</b></span>
-                        <br></br>
-                        <div style={{fontSize:"12px"}}>(an anonymous chatting application)</div>
+        <div>
+            <div style={{fontSize:"12px", float:"right", top:"0px",color:"white"}}>
+                <i>Might be slow for first time access</i>
+                <br></br>
+                <i>Stay patient :)</i>
+            </div>
+        
+            <div className="register">
+                <form onSubmit={registerUser}>
+                    <div className="welcome-box">
+                            Welcome to <span className="logo"><b>AnonChat</b></span>
+                            <br></br>
+                            <div style={{fontSize:"16px"}}>(an anonymous chatting application)</div>
+                    </div>
+                    <input
+                        autoFocus
+                        required
+                        id="user-name"
+                        placeholder="Enter nickname"
+                        name="userName"
+                        value={userData.username}
+                        onChange={handleUsername}
+                        margin="normal"
+                    />
+                    <button type="submit">
+                            {connectButtonText}
+                    </button> 
+                </form>
+            </div>
+
+            
+            <div className="developedBy">
+                <div>
+                    <i>Developed by Uttam Kumar, Thanks for visiting !!</i>
                 </div>
-                <input
-                    id="user-name"
-                    placeholder="Enter nickname"
-                    name="userName"
-                    value={userData.username}
-                    onChange={handleUsername}
-                    margin="normal"
-                />
-                <button type="submit">
-                        connect
-                </button> 
-            </form>
+            </div>
         </div>}
     </div>
     )
