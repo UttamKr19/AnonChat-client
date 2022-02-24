@@ -22,7 +22,7 @@ const ChatRoom = () => {
     const connect =()=>{
         // let socketServerLocal='http://localhost:8080/ws'
         // let socketServerCloud2='https://anonchat-server.herokuapp.com/ws'
-        setConnectButtonText("connecting")
+        setConnectButtonText("connecting...")
         let socketServerCloud='https://anonchat-server.herokuapp.com/ws'
         let socket = new SockJS(socketServerCloud);
         stompClient = over(socket);
@@ -218,13 +218,17 @@ const ChatRoom = () => {
                         onChange={handleUsername}
                         margin="normal"
                     />
-                    <button type="submit">
-                            {connectButtonText}
-                    </button> 
+                    <br></br>
+                    <div>
+                        <button type="submit">
+                                {connectButtonText}
+                        </button> 
+                    </div>
+                   
                 </form>
             </div>
             <div className="front-image">
-                    <img style={{width:"400px",height:"auto",}} src="front-image.png" alt=""></img>
+                    <img style={{width:"300px",height:"auto",}} src="front-image.png" alt=""></img>
             </div>
             <div>
                 <div className="developedBy">
