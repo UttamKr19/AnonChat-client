@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import {over} from 'stompjs';
 import SockJS from 'sockjs-client';
+import { enabled } from 'sockjs-client/lib/transport/websocket';
 
 var stompClient =null;
 const ChatRoom = () => {
     const [privateChats, setPrivateChats] = useState(new Map());     
     const [publicChats, setPublicChats] = useState([]); 
     const [tab,setTab] =useState("CHATROOM");
-    const [connectButtonText,setConnectButtonText] =useState("connect");
+    const [connectButton,setConnectButton] =useState({
+        text:"connect",
+        enabled:true,
+    });
     const [userData, setUserData] = useState({
         username: '',
         receivername: '',
@@ -20,11 +24,9 @@ const ChatRoom = () => {
     }, [userData]);
 
     const connect =()=>{
-        // let socketServerLocal='http://localhost:8080/ws'
-        // let socketServerCloud2='https://anonchat-server.herokuapp.com/ws'
-        setConnectButtonText("connecting...")
-        let socketServerCloud='https://anonchat-server.herokuapp.com/ws'
-        let socket = new SockJS(socketServerCloud);
+        let socketServers = ['http://localhost:8080/ws','https://anonchat-server.herokuapp.com/ws']
+        setConnectButton({text:"connecting...", enabled:false})
+        let socket = new SockJS(socketServers[0]);
         stompClient = over(socket);
         stompClient.connect({},onConnected, onError);
     }
@@ -32,7 +34,7 @@ const ChatRoom = () => {
     const onConnected = () => {
         setUserData({...userData,"connected": true});
         stompClient.subscribe('/chatroom/public', onMessageReceived);
-        stompClient.subscribe('/user/'+userData.username+'/private', onPrivateMessage);
+        stompClient.subscribe('/user/'+userData.username+'/private-message', onPrivateMessage);
         userJoin();
     }
 
@@ -41,7 +43,7 @@ const ChatRoom = () => {
             senderName: userData.username,
             status:"JOIN"
           };
-          stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
+          stompClient.send("/app/public-message", {}, JSON.stringify(chatMessage));
     }
 
     //PUBLIC messages
@@ -101,7 +103,7 @@ const ChatRoom = () => {
             status:"MESSAGE"
             };
             console.log(chatMessage);
-            stompClient.send("/app/message", {}, JSON.stringify(chatMessage));
+            stompClient.send("/app/public-message", {}, JSON.stringify(chatMessage));
             setUserData({...userData,"message": ""});
         }
     }
@@ -138,104 +140,180 @@ const ChatRoom = () => {
 
 
     return (
-    <div className="container">
-        
+    <div>
         {userData.connected?
-        <div className="chat-box">
-            <div className="member-list">
-                
-                <ul>
-                    <li><div className="logo"><b>AnonChat</b></div></li>
-                    <li onClick={()=>{setTab("CHATROOM")}} className={`member ${tab==="CHATROOM" && "active"}`}><b>Public Room</b></li>
-                    {[...privateChats.keys()].map((name,index)=>(
-                        <li onClick={()=>{setTab(name)}} className={`member ${tab===name && "active"}`} key={index}>{name}</li>
-                    ))}
-                </ul>
+        
+        <div>
+            <div>
+                <div class="row no-gutters">
+                    <div class="col-lg-2">
+                        <div className="members">
+                                <ul>
+                                    <li><div className="logo-secondary"><b>AnonChat</b></div></li>
+                                    <li onClick={()=>{setTab("CHATROOM")}} className={`member ${tab==="CHATROOM" && "active"}`}><b>Public Room</b></li>
+                                    {[...privateChats.keys()].map((name,index)=>(
+                                        <li onClick={()=>{setTab(name)}} className={`member ${tab===name && "active"}`} key={index}>{name}</li>
+                                    ))}
+                                </ul>
+                         </div>
+                    </div>
+                    
+                    <div className="chatroom-message-box col-lg-10">
+                        <hr/><br/>
+                        {/* public chat room */}
+                        {tab==="CHATROOM" && 
+                        <div class="justify-content-md-center">
+                            <div className="public-chat-content">
+                                <ul className="public-chat-messages">
+                                        {publicChats.map((chat,index)=>(
+                                            <div className="chat-message-sendername">
+                                                <span className={`message ${chat.senderName === userData.username && "self"}`} >
+                                                    {chat.senderName !== userData.username &&
+                                                        <div className="avatar">
+                                                            <b>[</b> {chat.senderName} <b>]</b>
+                                                        </div>
+                                                    }
+                                                    {chat.senderName === userData.username &&
+                                                        <div className="avatar self">
+                                                        <b>[</b> You <b>]</b>
+                                                        </div>
+                                                    }
+                                                </span>
+                                                <li className={`message ${chat.senderName === userData.username && "self"}`}>
+                                                    {<div className="message-data">{chat.message}</div>}
+                                                </li>
+                                            </div>
+                                        ))}
+                                </ul>
+                            </div>
+                            <hr/><br/>
+                            <div className="send-message-form fixed-bottom w-80 position-relative" > 
+                                <form onSubmit={sendValue}>
+                                    <div className="send-message-box row no-gutters">
+                                        <div class="input-group mb-3">
+                                            <input type="text" 
+                                                className="form-control input-message" 
+                                                autoFocus 
+                                                placeholder="Type message..." 
+                                                value={userData.message} 
+                                                onChange={handleMessage} />
+
+                                            <div class="input-group-append">
+                                                <button type="submit" 
+                                                        className="send-button" 
+                                                        onClick={sendValue}>
+                                                    <i className="fa fa-paper-plane" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>}
+                        
+
+                        {/* private chat */}
+                        {tab!=="CHATROOM" && 
+                        <div class="justify-content-md-center">
+                            <div className="private-chat-content">
+                                <ul className="private-chat-messages">
+                                        {[...privateChats.get(tab)].map((chat,index)=>(
+                                            <div className="chat-message-sendername">
+                                                <span className={`message ${chat.senderName === userData.username && "self"}`} >
+                                                    {chat.senderName !== userData.username &&
+                                                        <div className="avatar">
+                                                            <b>[</b> {chat.senderName} <b>]</b>
+                                                        </div>
+                                                    }
+                                                    {chat.senderName === userData.username &&
+                                                        <div className="avatar self">
+                                                        <b>[</b> You <b>]</b>
+                                                        </div>
+                                                    }
+                                                </span>
+                                                <li className={`message ${chat.senderName === userData.username && "self"}`}>
+                                                    {<div className="message-data">{chat.message}</div>}
+                                                </li>
+                                            </div>
+                                        ))}
+                                </ul>
+                            </div>
+
+                            <hr/><br/>
+                            <div className="send-message-form fixed-bottom w-80 position-relative" > 
+                                <form onSubmit={sendPrivateValue}>
+                                    <div className="send-message-box row no-gutters">
+                                        <div class="input-group mb-3">
+                                            <input type="text" 
+                                                className="form-control input-message" 
+                                                autoFocus 
+                                                placeholder="Type message..." 
+                                                value={userData.message} 
+                                                onChange={handleMessage} />
+
+                                            <div class="input-group-append">
+                                                <button type="submit" 
+                                                        className="send-button" 
+                                                        onClick={sendPrivateValue}>
+                                                    <i className="fa fa-paper-plane" aria-hidden="true"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>}
+
+
+                    </div>
+                </div>
             </div>
-            {tab==="CHATROOM" && 
-            <div className="chat-content">
-                
-                <ul className="chat-messages">
-                    {publicChats.map((chat,index)=>(
-                        <li className={`message ${chat.senderName === userData.username && "self"}`} key={index}>
-                            {chat.senderName !== userData.username && <div className="avatar">{chat.senderName}</div>}
-                            <br/><div className="message-data">{chat.message}</div>
-                            {chat.senderName === userData.username && <div className="avatar self">{chat.senderName}</div>}
-                        </li>
-                    ))}
-                </ul>
-                <form onSubmit={sendValue}>
-                    <div className="send-message">
-                        <input type="text" className="input-message" autoFocus placeholder="Type message..." value={userData.message} onChange={handleMessage} /> 
-                        <button type="submit" className="send-button" onClick={sendValue}>send</button>
-                    </div>
-                </form>
-            </div>}
-            {tab!=="CHATROOM" && 
-            <div className="chat-content">
-                
-                <ul className="chat-messages">
-                    {[...privateChats.get(tab)].map((chat,index)=>(
-                        <li className={`message ${chat.senderName === userData.username && "self"}`} key={index}>
-                            {chat.senderName !== userData.username && <div className="avatar">{chat.senderName}</div>}
-                            <div className="message-data">{chat.message}</div>
-                            {chat.senderName === userData.username && <div className="avatar self">{chat.senderName}</div>}
-                        </li>
-                    ))}
-                </ul>
-                <form onSubmit={sendPrivateValue}>
-                    <div className="send-message">
-                        <input type="text" autoFocus className="input-message" placeholder="Type message..." value={userData.message} onChange={handleMessage} /> 
-                        <button type="button" className="send-button" onClick={sendPrivateValue}>send</button>
-                    </div>
-                </form>
-            </div>}
+
         </div>
         :
         <div>
             <div style={{fontSize:"12px", float:"right", top:"0px",color:"white"}}>
-                <i>Might be slow for first time access</i>
-                <br></br>
-                <i>Stay patient :)</i>
+                <i>Server Slow! Try refreshing if not connected on first try</i>
             </div>
-        
-            <div className="register">
-                <form onSubmit={registerUser}>
+
+            <div className="container h-100 d-flex justify-content-center">
+                <div className="jumbotron my-auto">
                     <div className="welcome-box">
-                            Welcome to <span className="logo"><b>AnonChat</b></span>
-                            <br></br>
-                            <div style={{fontSize:"16px"}}>(an anonymous chatting application)</div>
+                        <h1 className="display-5"> Welcome to <span className="logo-primary"><b>AnonChat</b></span></h1>
+                        <hr/>
                     </div>
-                    
-                    <input
-                        autoFocus
-                        required
-                        className="register-input"
-                        id="user-name"
-                        placeholder="Enter nickname"
-                        name="userName"
-                        value={userData.username}
-                        onChange={handleUsername}
-                        margin="normal"
-                    />
-                    <br></br>
-                    <div>
-                        <button type="submit">
-                                {connectButtonText}
-                        </button> 
+                    <div className="d-flex justify-content-center">
+                        <img style={{width:"300px",height:"auto",}} src="front-image.png" alt=""></img>
                     </div>
-                   
-                </form>
-            </div>
-            <div className="front-image">
-                    <img style={{width:"300px",height:"auto",}} src="front-image.png" alt=""></img>
-            </div>
-            <div>
-                <div className="developedBy">
-                   <i> &copy; (2022) &lt; Developer :  <b> Uttam Kumar</b> / &gt; </i>
+                    <br/>
+                    <div className="d-flex justify-content-center">
+                        <form onSubmit={registerUser} className="form-group">
+                            <input
+                                autoFocus
+                                required
+                                className="register-input form-control"
+                                id="user-name"
+                                placeholder="Enter nickname"
+                                name="userName"
+                                value={userData.username}
+                                onChange={handleUsername}
+                            />
+                            <div>
+                                <button className="register-button" type="submit" disabled={!connectButton.enabled}>
+                                        {connectButton.text} 
+                                </button> 
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="d-flex justify-content-center fixed-bottom developedBy">
+                        <i> &copy; (2022) &lt; Developer :  <b> Uttam Kumar</b> / &gt; </i>
+                    </div>
+
                 </div>
             </div>
-        </div>}
+        </div>
+        }
     </div>
     )
 }
