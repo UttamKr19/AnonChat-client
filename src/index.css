@@ -13,11 +13,6 @@ code {
     monospace;
 }
 
-input {
-  padding: 10px;
-  font-size: 1.2em;
-}
-
 button{
   border: none;
   padding: 10px;
@@ -26,20 +21,22 @@ button{
   font-size: 1.2em;
   font-weight: bold;
 }
+
 .register-input{
+  padding: 10px;
+  font-size: 1.2em;
   width: 100%;
   border-radius: 10px;
   color: rgb(37, 3, 3);
   text-align: center;
 }
+
 .register-button{
   width: 100%;
   border-radius: 10px;
   padding: 5px;
   margin-top: 5px;
 }
-
-
 
 .welcome-box{
   padding: 10px;
@@ -48,7 +45,6 @@ button{
   font-size: 20px;
   color:white;
 }
-
 
 .front-image{
   position: fixed;
@@ -59,22 +55,10 @@ button{
   display: flex;
   flex-direction: row;
 }
+
 .developedBy{
   font-size: small;
   color: rgb(121, 119, 119);
-}
-
-/* .register-input{
-  border-radius: 50px 0px 0px 50px;
-} */
-.register button{
-  width:100%;
-  display: flex;
-  justify-content: center;
-  display: flex;
-  flex-direction: row;
-  border-radius: 20px 20px 20px 20px;
-  cursor: pointer;
 }
 
 button:hover{
@@ -99,31 +83,8 @@ button:hover{
   padding: 5px;
 }
 
-.chat-box{
-  /* box-shadow:0 2.8px 2.2px rgba(0, 0, 0, 0.034),0 6.7px 5.3px rgba(0, 0, 0, 0.048),0 12.5px 10px rgba(0, 0, 0, 0.06),0 22.3px 17.9px rgba(0, 0, 0, 0.072),0 41.8px 33.4px rgba(0, 0, 0, 0.086),0 100px 80px rgba(0, 0, 0, 0.12); */
-  margin:0px 0px;
-  height: 100%;
-  height: 635px;
-  max-height: 635px;
-  padding: 2px 5px;
-  display: flex;
-  flex-direction: row;
-}
 
-.member-list{
-  width: 20%;
-  background-color: rgb(44, 41, 61);
-  overflow: auto;
-  border-radius: 10px;
-}
-
-.chat-content{
-  background-color: rgb(29, 27, 39);
-  width:100%;
-  margin-left: 5px;
-  overflow: auto;
-  border-radius: 10px;
-}
+/* ------------------------------------------------------------------------------------------- */
 
 .chat-messages{
   height: 80%;
@@ -133,6 +94,7 @@ button:hover{
   overflow-wrap: break-word;
   /* border: 1px solid rgb(131, 130, 139); */
 }
+
 .message-data{
   background-color: rgb(4, 2, 17);
   color: white;
@@ -140,40 +102,58 @@ button:hover{
   overflow-wrap: break-word;
   width: fit-content;
   padding:5px;
+  margin: 0px 0px 5px 0px;
   border-radius: 10px;
 }
 
-.send-message{
-  /* width: 100%; */
-  /* display: flex; */
-  /* flex-direction: row; */
+.message{
+  padding:0px;
+  width: auto;
+  display: flex;
+  flex-direction: row;
+  /* box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); */
+  margin: 0px 0px;
+}
+
+.message.self{
+  justify-content: end;
 }
 
 .input-message{
-  /* margin-left: 2%; */
-  /* width:100%; */
-  /* border-radius: 200px 550px 50px 200px; */
+  margin-left: 2%;
+  width:100%;
+  border-radius: 200px 550px 50px 200px;
 }
 
-ul {
-  padding: 0;
-  list-style-type: none;
-}
-.send-button{
-  /* width:100px; */
-  /* margin-left: 0px;
-  margin-right: 1%;
-  border-radius: 20px 50px 50px 200px;
+
+.send-message-form{
+  width: 85%;
+  /* max-width: 700px; */
+  position: sticky;
+  position: fixed;
+  bottom: 0px;
   float: right;
-  cursor: pointer; */
+  right: 0;
+}
+
+
+
+.send-button{
+  border-radius: 0px 0px 20px 0px;
+  cursor: pointer; 
 }
 
 /* .send-button:hover{
   background-color: rgb(8, 199, 56);
 } */
 
+.members{
+  overflow: hidden;
+  border-radius: 10px;
+}
 .member{
   padding: 10px;
+  border-radius: 5px;
   background: #eee;
   border:#000;
   cursor: pointer;
@@ -181,6 +161,7 @@ ul {
   text-align: center;
   box-shadow: 0 8px 8px -4px lightblue;
 }
+
 .member.active{
   background: rgb(29, 27, 39);
   color:#fff;
@@ -201,27 +182,18 @@ ul {
   color:rgb(234, 177, 252);
   background-color:inherit
 }
-.message{
-  padding:0px;
-  width: auto;
-  display: flex;
-  flex-direction: row;
-  /* box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); */
-  margin: 0px 0px;
+
+
+ul {
+  padding: 0;
+  list-style-type: none;
 }
 
-.message.self{
-  justify-content: end;
+.public-chat-view{
+  /* background-color: rgb(29, 27, 39); */
+  padding: 10px;
 }
-
-
-
-
-
-.send-message-box{
- bottom: 10px;
-}
-
-.public-chat-content{
-  margin-bottom: 50px;
+.private-chat-view{
+  /* background-color: rgb(34, 5, 5); */
+  padding: 10px;
 }

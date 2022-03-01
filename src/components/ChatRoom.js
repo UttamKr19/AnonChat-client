@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import {over} from 'stompjs';
 import SockJS from 'sockjs-client';
-import { enabled } from 'sockjs-client/lib/transport/websocket';
 
 var stompClient =null;
 const ChatRoom = () => {
@@ -20,7 +19,7 @@ const ChatRoom = () => {
       });
       
     useEffect(() => {
-      console.log(userData);
+    //   console.log(userData);
     }, [userData]);
 
     const connect =()=>{
@@ -72,7 +71,7 @@ const ChatRoom = () => {
     // if sender name is already in map, just push the new message into existing message list
     // else add the brand new msg to a list and map the sender name with that list
     const onPrivateMessage = (payload)=>{
-        console.log(payload);
+        // console.log(payload);
         var payloadData = JSON.parse(payload.body);
         if(privateChats.get(payloadData.senderName)){
             privateChats.get(payloadData.senderName).push(payloadData);
@@ -87,6 +86,8 @@ const ChatRoom = () => {
 
     const onError = (err) => {
         console.log(err);
+        // swal.fire("Error!", "Error while connecting!", "error");
+        
     }
 
     const handleMessage =(event)=>{
@@ -102,9 +103,12 @@ const ChatRoom = () => {
             message: userData.message,
             status:"MESSAGE"
             };
-            console.log(chatMessage);
-            stompClient.send("/app/public-message", {}, JSON.stringify(chatMessage));
-            setUserData({...userData,"message": ""});
+            if(chatMessage.message.length>0){
+                // console.log(chatMessage);
+                stompClient.send("/app/public-message", {}, JSON.stringify(chatMessage));
+                setUserData({...userData,"message": ""});
+            }
+            
         }
     }
 
@@ -118,13 +122,15 @@ const ChatRoom = () => {
             status:"MESSAGE"
           };
           
-          //if sending msg to someone for the first time, put the msg in map ( map<friend,chats>)
-          if(userData.username !== tab){
-            privateChats.get(tab).push(chatMessage);
-            setPrivateChats(new Map(privateChats));
-          }
-          stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage));
-          setUserData({...userData,"message": ""});
+            if(chatMessage.message.length>0){
+            //if sending msg to someone for the first time, put the msg in map ( map<friend,chats>)
+                if(userData.username !== tab){
+                    privateChats.get(tab).push(chatMessage);
+                    setPrivateChats(new Map(privateChats));
+                }
+                stompClient.send("/app/private-message", {}, JSON.stringify(chatMessage));
+                setUserData({...userData,"message": ""});
+            }
         }
     }
 
@@ -142,138 +148,145 @@ const ChatRoom = () => {
     return (
     <div>
         {userData.connected?
-        
-        <div>
-            <div>
-                <div class="row no-gutters">
-                    <div class="col-lg-2">
-                        <div className="members">
-                                <ul>
-                                    <li><div className="logo-secondary"><b>AnonChat</b></div></li>
-                                    <li onClick={()=>{setTab("CHATROOM")}} className={`member ${tab==="CHATROOM" && "active"}`}><b>Public Room</b></li>
-                                    {[...privateChats.keys()].map((name,index)=>(
-                                        <li onClick={()=>{setTab(name)}} className={`member ${tab===name && "active"}`} key={index}>{name}</li>
+
+            <div class="row no-gutters">
+                <div class="col-lg-2">
+                    <div className="members">
+                            <ul>
+                                <li><div className="logo-secondary"><b>AnonChat</b></div></li>
+                                <li onClick={()=>{setTab("CHATROOM")}} className={`member ${tab==="CHATROOM" && "active"}`}><b>Public Room</b></li>
+                                {[...privateChats.keys()].map((name,index)=>(
+                                    <li onClick={()=>{setTab(name)}} className={`member ${tab===name && "active"}`} key={index}>{name}</li>
+                                ))}
+                            </ul>
+                        </div>
+                </div>
+                
+                <div className="chatroom-message-box col-lg-10">
+                    <br/>
+                    {/* public chat room */}
+                    {tab==="CHATROOM" && 
+                    <div class="public-chat-view justify-content-md-center">
+                        <div className="d-flex justify-content-center" style={{color:"white", textShadow: "3px 3px 3px rgb(78, 207, 106)"}}>
+                            <h5>Public Chat Room</h5>
+                        </div>
+                        <div className="public-chat-content">
+                            <ul className="public-chat-messages">
+                                    {publicChats.map((chat,index)=>(
+                                        <div className="chat-message-sendername">
+                                            <span className={`message ${chat.senderName === userData.username && "self"}`} >
+                                                {chat.senderName !== userData.username &&
+                                                    <div className="avatar">
+                                                        <b>[</b> <i>{chat.senderName}</i> <b>]</b>
+                                                    </div>
+                                                }
+                                                {chat.senderName === userData.username &&
+                                                    <div className="avatar self">
+                                                    <b>[</b>You<b>]</b>
+                                                    </div>
+                                                }
+                                            </span>
+                                            <li className={`message ${chat.senderName === userData.username && "self"}`}>
+                                                {<div className="message-data">{chat.message}</div>}
+                                            </li>
+                                        </div>
                                     ))}
-                                </ul>
-                         </div>
-                    </div>
+                            </ul>
+                        </div>
+                        <br/><br/>
+                        <div className="send-message-form" > 
+                            <form onSubmit={sendValue}>
+                                <div className="send-message-box row no-gutters">
+                                    <div class="input-group mb-3">
+                                        <input type="text" 
+                                            className="form-control input-message" 
+                                            autoFocus 
+                                            placeholder="Type message..." 
+                                            value={userData.message} 
+                                            onChange={handleMessage} />
+
+                                        <div class="input-group-append">
+                                            <button type="submit" 
+                                                    className="send-button" 
+                                                    onClick={sendValue}>
+                                                <i className="fa fa-paper-plane" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>}
                     
-                    <div className="chatroom-message-box col-lg-10">
-                        <hr/><br/>
-                        {/* public chat room */}
-                        {tab==="CHATROOM" && 
-                        <div class="justify-content-md-center">
-                            <div className="public-chat-content">
-                                <ul className="public-chat-messages">
-                                        {publicChats.map((chat,index)=>(
-                                            <div className="chat-message-sendername">
-                                                <span className={`message ${chat.senderName === userData.username && "self"}`} >
-                                                    {chat.senderName !== userData.username &&
-                                                        <div className="avatar">
-                                                            <b>[</b> {chat.senderName} <b>]</b>
-                                                        </div>
-                                                    }
-                                                    {chat.senderName === userData.username &&
-                                                        <div className="avatar self">
-                                                        <b>[</b> You <b>]</b>
-                                                        </div>
-                                                    }
-                                                </span>
-                                                <li className={`message ${chat.senderName === userData.username && "self"}`}>
-                                                    {<div className="message-data">{chat.message}</div>}
-                                                </li>
-                                            </div>
-                                        ))}
-                                </ul>
-                            </div>
-                            <hr/><br/>
-                            <div className="send-message-form fixed-bottom w-80 position-relative" > 
-                                <form onSubmit={sendValue}>
-                                    <div className="send-message-box row no-gutters">
-                                        <div class="input-group mb-3">
-                                            <input type="text" 
-                                                className="form-control input-message" 
-                                                autoFocus 
-                                                placeholder="Type message..." 
-                                                value={userData.message} 
-                                                onChange={handleMessage} />
 
-                                            <div class="input-group-append">
-                                                <button type="submit" 
-                                                        className="send-button" 
-                                                        onClick={sendValue}>
-                                                    <i className="fa fa-paper-plane" aria-hidden="true"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>}
+                    {/* private chat */}
+                    {tab!=="CHATROOM" && 
+                    <div class="private-chat-view justify-content-md-center">
+                        <div className="d-flex justify-content-center" style={{color:"white", textShadow: "3px 3px 3px rgb(228, 89, 25)"}}>
+                            <h5>Private Chat <b>[</b> <i>{tab}</i> <b>]</b></h5>
+                        </div>
                         
+                        <div className="private-chat-content">
+                            <ul className="private-chat-messages">
+                                    {[...privateChats.get(tab)].map((chat,index)=>(
+                                        <div className="chat-message-sendername">
+                                            <span className={`message ${chat.senderName === userData.username && "self"}`} >
+                                                {chat.senderName !== userData.username &&
+                                                    <div className="avatar">
+                                                        <b>[</b> <i>{chat.senderName}</i> <b>]</b>
+                                                    </div>
+                                                }
+                                                {chat.senderName === userData.username &&
+                                                    <div className="avatar self">
+                                                    <b>[</b>You<b>]</b>
+                                                    </div>
+                                                }
+                                            </span>
+                                            <li className={`message ${chat.senderName === userData.username && "self"}`}>
+                                                {<div className="message-data">{chat.message}</div>}
+                                            </li>
+                                        </div>
+                                    ))}
+                            </ul>
+                        </div>
+                        <br/><br/>
+                        <div className="send-message-form" > 
+                            <form onSubmit={sendPrivateValue}>
+                                <div className="send-message-box row no-gutters">
+                                    <div class="input-group mb-3">
+                                        <input type="text" 
+                                            className="form-control input-message" 
+                                            autoFocus 
+                                            placeholder="Type message..." 
+                                            value={userData.message} 
+                                            onChange={handleMessage} />
 
-                        {/* private chat */}
-                        {tab!=="CHATROOM" && 
-                        <div class="justify-content-md-center">
-                            <div className="private-chat-content">
-                                <ul className="private-chat-messages">
-                                        {[...privateChats.get(tab)].map((chat,index)=>(
-                                            <div className="chat-message-sendername">
-                                                <span className={`message ${chat.senderName === userData.username && "self"}`} >
-                                                    {chat.senderName !== userData.username &&
-                                                        <div className="avatar">
-                                                            <b>[</b> {chat.senderName} <b>]</b>
-                                                        </div>
-                                                    }
-                                                    {chat.senderName === userData.username &&
-                                                        <div className="avatar self">
-                                                        <b>[</b> You <b>]</b>
-                                                        </div>
-                                                    }
-                                                </span>
-                                                <li className={`message ${chat.senderName === userData.username && "self"}`}>
-                                                    {<div className="message-data">{chat.message}</div>}
-                                                </li>
-                                            </div>
-                                        ))}
-                                </ul>
-                            </div>
-
-                            <hr/><br/>
-                            <div className="send-message-form fixed-bottom w-80 position-relative" > 
-                                <form onSubmit={sendPrivateValue}>
-                                    <div className="send-message-box row no-gutters">
-                                        <div class="input-group mb-3">
-                                            <input type="text" 
-                                                className="form-control input-message" 
-                                                autoFocus 
-                                                placeholder="Type message..." 
-                                                value={userData.message} 
-                                                onChange={handleMessage} />
-
-                                            <div class="input-group-append">
-                                                <button type="submit" 
-                                                        className="send-button" 
-                                                        onClick={sendPrivateValue}>
-                                                    <i className="fa fa-paper-plane" aria-hidden="true"></i>
-                                                </button>
-                                            </div>
+                                        <div class="input-group-append">
+                                            <button type="submit" 
+                                                    className="send-button" 
+                                                    onClick={sendPrivateValue}>
+                                                <i className="fa fa-paper-plane" aria-hidden="true"></i>
+                                            </button>
                                         </div>
                                     </div>
-                                </form>
-                            </div>
-                        </div>}
-
-
-                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>}
                 </div>
             </div>
-
-        </div>
+        
         :
         <div>
             <div style={{fontSize:"12px", float:"right", top:"0px",color:"white"}}>
-                <i>Server Slow! Try refreshing if not connected on first try</i>
+                <i>Note: Server Slow! Try refreshing if not connected on first try </i>
+                <span
+                        class="btn-sm btn-dark" 
+                        data-toggle="tooltip" 
+                        data-placement="bottom" 
+                        title="The app is deployed on free heroku server, the app goes into sleep mode when no one is using it and it takes few minutes to wake up.">
+                        why?
+                </span>
             </div>
 
             <div className="container h-100 d-flex justify-content-center">
